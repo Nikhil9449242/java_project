@@ -14,7 +14,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: name: Build and Push Docker Image to AWS ECR
+    runs-on: name:Build and Push Docker Image to AWS ECR
 
 on:
   push:
