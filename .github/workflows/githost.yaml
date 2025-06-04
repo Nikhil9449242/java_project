@@ -1,0 +1,108 @@
+name: Build and Push Docker Image to AWS ECR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPO_NAME: myecr-repo
+  ECR_PUBLIC_REPO_URI: public.ecr.aws/b5w5m4h6/myecr-repo
+  IMAGE_TAG: latest
+  AWS_ACCOUNT_ID: 066547615027
+
+jobs:
+  build-and-push:
+    runs-on: name: Build and Push Docker Image to AWS ECR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPO_NAME: myecr-repo
+  ECR_PUBLIC_REPO_URI: public.ecr.aws/b5w5m4h6/myecr-repo
+  IMAGE_TAG: latest
+  AWS_ACCOUNT_ID: 066547615027
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu:latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # For ECR Public
+
+      - name: Login to Amazon ECR Public
+        run: |
+          echo "Logging into AWS ECR..."
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Build Java Application
+        run: |
+          echo "Building Java application..."
+          mvn clean package
+
+      - name: Build Docker Image
+        run: |
+          echo "Building Docker image..."
+          docker build -t ${{ env.ECR_PUBLIC_REPO_URI }}:${{ env.IMAGE_TAG }} .
+
+      - name: Push Docker Image to ECR
+        run: |
+          echo "Pushing Docker image to ECR..."
+          docker push ${{ env.ECR_PUBLIC_REPO_URI }}:${{ env.IMAGE_TAG }}
+
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # For ECR Public
+
+      - name: Login to Amazon ECR Public
+        run: |
+          echo "Logging into AWS ECR..."
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Build Java Application
+        run: |
+          echo "Building Java application..."
+          mvn clean package
+
+      - name: Build Docker Image
+        run: |
+          echo "Building Docker image..."
+          docker build -t ${{ env.ECR_PUBLIC_REPO_URI }}:${{ env.IMAGE_TAG }} .
+
+      - name: Push Docker Image to ECR
+        run: |
+          echo "Pushing Docker image to ECR..."
+          docker push ${{ env.ECR_PUBLIC_REPO_URI }}:${{ env.IMAGE_TAG }}
